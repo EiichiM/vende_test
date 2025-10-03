@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  # Base de datos PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: vende_products
+      POSTGRES_USER: vende_user
+      POSTGRES_PASSWORD: vende_password
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    networks:
+      - vende-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # Microservicio de productos
+  ms-products:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_NAME: vende_products
+      DATABASE_USER: vende_user
+      DATABASE_PASSWORD: vende_password
+      PORT: 3000
+    ports:
+      - "3000:3000"
+    volumes:
+      # Solo montar código fuente, no node_modules
+      - ./src:/app/src:ro
+      - ./package*.json:/app/:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - vende-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Adminer para gestión de base de datos (opcional)
+  adminer:
+    image: adminer:4-standalone
+    restart: unless-stopped
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+      ADMINER_DESIGN: dracula
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - vende-network
+    profiles:
+      - debug
+
+volumes:
+  postgres_data:
+
+networks:
+  vende-network:
+    driver: bridge
