@@ -1,0 +1,70 @@
+/* BulkActions.css - Estilos para el componente BulkActions */
+
+/* Animation for the component entrance */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.bulk-actions-container {
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .bulk-actions-container {
+    padding: 1rem;
+  }
+  
+  .bulk-actions-container .flex {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .bulk-actions-container .space-x-3 {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+}
+
+/* Custom animations for buttons */
+.bulk-actions-container button {
+  transition: all 0.2s ease-in-out;
+}
+
+.bulk-actions-container button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.bulk-actions-container button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Progress bar styling */
+.bulk-actions-container .bg-blue-200 {
+  background-color: rgb(191, 219, 254);
+}
+
+.bulk-actions-container .bg-blue-600 {
+  background-color: rgb(37, 99, 235);
+  background-image: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
